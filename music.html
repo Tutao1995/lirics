@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>面试资本课大型企业歌词联动特效-kery老师</title>
+	<style>
+		*{padding:0;margin:0;}
+		li{list-style: none;}
+		a{text-decoration: none;}
+		body{padding:30px;}
+		#lrcbox{width:500px;height:100px;background: pink;overflow: hidden;box-shadow: 2px 5px 10px #333;padding: 0px 10px;}
+		#lrcbox li{font-size: 16px;padding:4px;background: #d18f8f;color: #fff;transition: all .5s ease;border-bottom:1px solid #bbb;}
+		#lrcbox:hover li{transform: rotate(40deg) scale(1.2);}
+	</style>
+</head>
+<body>
+	<textarea id="mylrc" style="display:none;">
+		[00:01.15]感恩的心
+		[00:08.75]作词：陈乐融　作曲：陈志远　
+		[00:11.87]演唱：欧阳菲菲
+		[00:18.36]
+		[00:32.84]我来自偶然　像一颗尘土
+		[00:39.74]有谁看出我的脆弱
+		[00:46.52]我来自何方　我情归何处
+		[00:53.93]谁在下一刻呼唤我
+		[01:01.06]
+		[01:01.38]天地虽宽　这条路却难走
+		[01:07.68]我看遍这人间坎坷辛苦
+		[01:15.14]我还有多少爱　我还有多少泪
+		[01:21.84]要苍天知道　我不认输
+		[01:28.00]
+		[01:28.99]感恩的心　感谢有你
+		[01:35.99]伴我一生　让我有勇气做我自己
+		[01:43.03]感恩的心　感谢命运
+		[01:50.06]花开花落　我一样会珍惜
+		[02:01.00]
+		[02:22.03]我来自偶然　像一颗尘土
+		[02:29.42]有谁看出我的脆弱
+		[02:36.04]我来自何方　我情归何处
+		[02:43.04]谁在下一刻呼唤我
+		[02:49.39]
+		[02:50.28]天地虽宽　这条路却难走
+		[02:57.10]我看遍这人间坎坷辛苦
+		[03:04.24]我还有多少爱　我还有多少泪
+		[03:11.36]要苍天知道　我不认输
+		[03:17.78]
+		[03:18.41]感恩的心　感谢有你
+		[03:25.41]伴我一生　让我有勇气做我自己
+		[03:32.44]感恩的心　感谢命运
+		[03:39.46]花开花落　我一样会珍惜
+		[03:46.57]感恩的心　感谢有你
+		[03:53.67]伴我一生　让我有勇气做我自己
+		[04:00.82]感恩的心　感谢命运
+		[04:07.66]花开花落　我一样会珍惜
+		[04:14.62]花开花落　我一样会珍惜
+		[04:26.59]
+
+	</textarea>
+	<audio src="mp3/01.mp3" controls id="music"></audio>
+	<div id="lrcbox">
+		<ul id="lrcList"></ul>
+	</div>
+	<h2>
+		<span id="total">00:00</span>
+		<span id="cur">00:00</span>
+	</h2>
+	<a href="javascript:void(0)" onclick="playMusic();">播放</a>
+	<a href="javascript:void(0)" onclick="pauseMusic();">暂停</a>
+	<script>
+		/*
+			歌词联动特效
+			audio  ---> html5 
+			textarea ---> 歌词
+		*/
+		function dom(id){
+			return document.getElementById(id);
+		};
+
+		//获取音乐播放器
+		var musicDom = dom("music");
+		//播放
+		function playMusic(){
+			musicDom.play();
+		};
+		//暂停
+		function pauseMusic(){
+			musicDom.pause();
+		};
+		//解析歌词的方法
+		function parseLrc(){
+			//找到ul对象
+			var ulDom = dom("lrcList");
+			//获取textarea当中的歌词
+			var lrcContent = mylrc.value;
+			//把歌词按照\n进行切割，切成数组进行存储
+			var lrcs = lrcContent.split("\n");
+			// console.log(lrcs);
+			var j = 0;//记录索引
+			for(var i=0;i<lrcs.length;i++){
+				//获取数组当中每一句的歌词
+				var lrc = lrcs[i];
+				//去掉每一句歌词前后空格
+				var item = lrc.replace(/^\s+|\s+$/gm,"");//trim();
+				//将歌词与时间分离
+				var lt = item.split("]");
+				if(lt[1]){
+					//将左括号"["用""进行替换，此后用":"进行切割
+					var t = lt[0].replace("[","").split(":");
+					var m = parseInt(t[0])*60;
+					var s = parseInt(t[1]);
+					//获取对应歌词的当前秒数
+					var ms = m+s;
+					//创建li对象
+					var liDom = document.createElement("li");
+					//赋予歌词
+					liDom.innerHTML = lt[1];
+					liDom.id = "t_"+ms+"";
+					liDom.index = j++;
+					//追加到ulDom中
+					ulDom.appendChild(liDom);
+				}
+			}
+		};
+		parseLrc();
+
+		//监听音乐播放器播放
+		musicDom.ontimeupdate = function(){
+			//获取ulDom对象
+			var ulDom = dom("lrcList");
+			//获取总进度
+			var total = this.duration;
+			//获取当前进度
+			var ctime = parseInt(this.currentTime);
+			dom("total").innerHTML =formatTime(total);
+			dom("cur").innerHTML = formatTime(ctime);
+				
+			if(dom("t_"+ctime)){
+				var text = dom("t_"+ctime).innerText||dom("t_"+ctime).textContent;
+				var html = "";
+				for(var i=0;i<text.length;i++){
+					html += "<span style='color:"+getRandom()+"'>"+text.charAt(i)+"</span>";
+				}
+				//让字体变大
+				dom("t_"+ctime).style.fontSize = "24px";
+				//同辈元素字体变成16px
+				siblings(dom("t_"+ctime),function(){
+					this.style.fontSize = "16px";
+					var childs = this.children;
+					for(var i=0;i<childs.length;i++){
+						childs[i].setAttribute("style","");
+					}
+				});
+				dom("t_"+ctime).innerHTML = html;
+				//滚动
+				var index = dom("t_"+ctime).index;
+				//改变ulDom的margin-top
+				ulDom.style.marginTop = -index*24+"px";
+			}
+		};
+
+
+
+		//时间格式化
+		function formatTime(t){
+			var min = parseInt(t/60);
+			var sec = parseInt(t%60);
+			return (min<10?"0"+min:min)+":"+(sec<10?"0"+sec:sec);
+		};
+		//随机颜色
+		function getRandom(){//rgb 0-255
+			var r = Math.ceil(Math.random()*255);
+			var g = Math.ceil(Math.random()*255);
+			var b = Math.ceil(Math.random()*255);
+			r = r<10?"0"+r:r;
+			g = g<10?"0"+g:g;
+			b = b<10?"0"+b:b;
+			return "rgb("+r+","+g+","+b+")";
+		};
+		//封装siblings方法
+		function siblings(cur,callback){
+			var parents = cur.parentNode;
+			var pChilds = parents.children;
+			for(var i=0;i<pChilds.length;i++){
+				if(cur!=pChilds[i])callback.apply(pChilds[i]);
+			}
+		};
+	</script>
+</body>
+</html>
